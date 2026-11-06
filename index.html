@@ -250,7 +250,7 @@ async function api(action, data) {
   if (!/^https:\/\//.test(CONFIG.API_URL)) throw new Error('API_URL belum diisi. Buka index.html dan isi CONFIG.API_URL dengan URL Web App.');
   let res;
   try {
-    res = await fetch(CONFIG.API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    res = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action, token: S.token, data: data || {} }) });
   } catch (e) { throw new Error('Tidak bisa terhubung ke server. Periksa internet atau pengaturan deploy.'); }
   let j; try { j = await res.json(); } catch (e) { throw new Error('Respons server tidak dikenali. Pastikan deploy diatur "Anyone".'); }
