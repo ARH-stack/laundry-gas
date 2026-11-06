@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laundry</title>
+<meta name="theme-color" content="#ECEFFB">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧺%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKEN DESAIN: Neumorphism ungu-biru solid + putih ============ */
+:root{
+  color-scheme:light;
+  --bg:#ECEFFB; --hi:#FFFFFF; --lo:#C6CBE6;
+  --ink:#25254F; --mute:#5F6390;
+  --pri:#5A4FE5; --pri-d:#4338CA; --pri-soft:#DDDCFA;
+  --ok:#1B8062; --warn:#946000; --bad:#B8324F;
+  --raise:7px 7px 16px var(--lo),-7px -7px 16px var(--hi);
+  --raise-s:4px 4px 9px var(--lo),-4px -4px 9px var(--hi);
+  --inset:inset 4px 4px 9px var(--lo),inset -4px -4px 9px var(--hi);
+  --f-head:'Sora',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-head);margin:0;line-height:1.2;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.1rem;font-weight:700}
+p{margin:0}
+a{color:var(--pri-d)}
+small,.muted{color:var(--mute)}
+small{font-size:.85rem}
+:focus-visible{outline:3px solid var(--pri);outline-offset:3px;border-radius:12px}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+.stack>*+*{margin-top:18px}
+.row{display:flex;align-items:center;flex-wrap:wrap}
+.gap{gap:12px}.between{justify-content:space-between}
+.grid{display:grid;gap:18px}
+.cards{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.two{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.hide{display:none!important}
+
+/* permukaan */
+.card{background:var(--bg);border-radius:22px;box-shadow:var(--raise);padding:22px}
+.card.sm{padding:16px;border-radius:18px;box-shadow:var(--raise-s)}
+.inset{background:var(--bg);border-radius:16px;box-shadow:var(--inset);padding:14px}
+
+/* tombol */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;text-decoration:none;
+  background:var(--bg);color:var(--ink);font-weight:700;padding:12px 22px;border-radius:16px;min-height:46px;
+  box-shadow:var(--raise-s);transition:box-shadow .15s,transform .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{box-shadow:var(--inset);transform:none}
+.btn.primary{background:var(--pri);color:#fff;box-shadow:5px 5px 12px rgba(90,79,229,.35),-4px -4px 10px var(--hi)}
+.btn.primary:active{box-shadow:inset 3px 3px 8px rgba(0,0,0,.28)}
+.btn.danger{color:var(--bad)}
+.btn.sm{min-height:38px;padding:8px 14px;border-radius:13px;font-size:.9rem}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* input */
+label.f{display:block;font-weight:600;font-size:.9rem}
+label.f>span{display:block;margin-bottom:6px}
+.in,select.in,textarea.in{width:100%;border:0;background:var(--bg);box-shadow:var(--inset);border-radius:14px;padding:12px 14px;min-height:46px}
+textarea.in{min-height:80px;resize:vertical}
+.in::placeholder{color:#8A8EB3}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.opt{position:relative;cursor:pointer;display:block}
+.opt input{position:absolute;opacity:0;inset:0}
+.opt>span{display:block;padding:14px;border-radius:16px;background:var(--bg);box-shadow:var(--raise-s);transition:box-shadow .15s,background .15s}
+.opt small{display:block}
+.opt input:checked+span{box-shadow:var(--inset);background:var(--pri-soft)}
+.opt input:focus-visible+span{outline:3px solid var(--pri);outline-offset:2px}
+.sw{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer}
+.sw input{width:20px;height:20px;accent-color:var(--pri)}
+
+/* badge & chip */
+.chip,.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:.8rem;font-weight:700;background:var(--bg);box-shadow:var(--inset);white-space:nowrap}
+.b-new{color:var(--warn)}.b-proc{color:var(--pri-d)}.b-ready{color:#1D6FA5}.b-done,.b-ok{color:var(--ok)}.b-bad{color:var(--bad)}
+.fchip{border:0;cursor:pointer;background:var(--bg);box-shadow:var(--raise-s);padding:8px 14px;border-radius:999px;font-weight:600;font-size:.85rem;white-space:nowrap}
+.fchip[aria-pressed=true]{box-shadow:var(--inset);color:var(--pri-d)}
+
+/* header pelanggan */
+.top{padding:16px 0}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font:800 1.15rem var(--f-head);text-decoration:none;color:var(--ink)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.nav a{padding:9px 16px;border-radius:14px;text-decoration:none;color:var(--ink);font-weight:600;font-size:.92rem}
+.nav a[aria-current=page]{box-shadow:var(--inset);color:var(--pri-d)}
+.nav a:hover{box-shadow:var(--raise-s)}
+.nav a[aria-current=page]:hover{box-shadow:var(--inset)}
+footer{padding:36px 0 48px;text-align:center}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:28px 0 36px}
+.hero .lead{font-size:1.15rem;color:var(--mute);margin:14px 0 22px;max-width:46ch}
+.hero .chips{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+.drum{width:min(260px,70vw);aspect-ratio:1;border-radius:50%;box-shadow:var(--raise);padding:22px;margin:auto;background:var(--bg)}
+.drum-in{width:100%;height:100%;border-radius:50%;box-shadow:var(--inset);overflow:hidden;position:relative;background:var(--bg)}
+.wave{position:absolute;left:0;bottom:0;width:200%;height:62%;animation:wave 7s linear infinite}
+.wave.b{height:55%;opacity:.45;animation-duration:11s;animation-direction:reverse}
+@keyframes wave{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.wave{animation:none}}
+@media(max-width:760px){.hero{grid-template-columns:1fr}.drum{order:-1;width:170px}}
+section.blk{padding:18px 0}
+section.blk>h2{margin-bottom:16px}
+.svc{display:flex;flex-direction:column;gap:6px}
+.price{font:800 1.5rem var(--f-head);color:var(--pri-d)}
+.ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.ul li{display:flex;gap:10px;align-items:flex-start}
+.ul .icon{color:var(--pri);margin-top:3px}
+
+/* ringkasan biaya */
+.sum{display:grid;gap:8px}
+.sum>div{display:flex;justify-content:space-between;gap:12px}
+.sum .tot{border-top:2px solid var(--lo);padding-top:10px;font-weight:800;font-size:1.1rem}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0 0 0 18px;border-left:3px solid var(--lo);display:grid;gap:14px}
+.tl li{position:relative}
+.tl li::before{content:'';position:absolute;left:-26px;top:5px;width:13px;height:13px;border-radius:50%;background:var(--lo)}
+.tl li:first-child::before{background:var(--pri)}
+
+/* admin */
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{padding:22px 16px;position:sticky;top:0;height:100vh;overflow:auto}
+.side .brand{display:block;padding:0 10px 18px}
+.side a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;text-decoration:none;color:var(--ink);font-weight:600;margin-bottom:8px}
+.side a:hover{box-shadow:var(--raise-s)}
+.side a[aria-current=page]{box-shadow:var(--inset);color:var(--pri-d)}
+.mainc{padding:24px 24px 90px;min-width:0}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px}
+.stat b{display:block;font:800 1.6rem var(--f-head);color:var(--pri-d);margin-top:2px}
+.stat.lg b{font-size:1.25rem}
+.orow{display:grid;grid-template-columns:1.4fr auto auto auto;gap:12px;align-items:center;width:100%;text-align:left;border:0;background:var(--bg);
+  box-shadow:var(--raise-s);border-radius:16px;padding:14px 16px;cursor:pointer;margin-bottom:12px}
+.orow:active{box-shadow:var(--inset)}
+.orow b{display:block}
+.amt{font-weight:800;text-align:right}
+.scroll{overflow-x:auto}
+.scroll .chips{display:flex;gap:10px;padding:6px 4px 14px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--lo);white-space:nowrap}
+th{color:var(--mute);font-weight:600}
+.chart{display:flex;align-items:flex-end;gap:10px;height:130px;padding-top:6px}
+.chart>div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;font-size:.75rem;color:var(--mute)}
+.chart i{display:block;width:100%;max-width:34px;background:var(--pri);border-radius:10px 10px 4px 4px;min-height:4px}
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;z-index:20;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
+    display:flex;gap:6px;overflow-x:auto;box-shadow:0 -6px 16px var(--lo);background:var(--bg)}
+  .side .brand{display:none}
+  .side a{flex-direction:column;gap:2px;font-size:.7rem;padding:8px 12px;margin:0;flex:none}
+  .mainc{padding:16px 14px 110px}
+  .orow{grid-template-columns:1fr auto}
+  .orow .amt{text-align:left}
+}
+
+/* modal, toast, skeleton */
+.ov{position:fixed;inset:0;background:rgba(37,37,79,.35);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) 14px 24px;overflow:auto}
+.modal{width:min(720px,100%);margin:auto 0;position:relative}
+.modal.narrow{width:min(520px,100%)}
+.x{position:absolute;top:14px;right:14px}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;background:var(--pri-d);color:#fff;padding:12px 20px;border-radius:14px;font-weight:600;box-shadow:var(--raise);max-width:90vw}
+.toast.err{background:var(--bad)}
+.sk{height:78px;border-radius:18px;box-shadow:var(--inset);animation:pulse 1.4s ease-in-out infinite;margin-bottom:14px}
+@keyframes pulse{50%{opacity:.5}}
+@media(prefers-reduced-motion:reduce){.sk{animation:none}}
+.empty{text-align:center;padding:30px 12px;color:var(--mute)}
+.err-box{color:var(--bad);font-weight:600}
+
+/* nota */
+.nota{background:#fff;color:#222;border-radius:16px;padding:22px;font-size:.92rem;box-shadow:var(--inset)}
+.nota h3{text-align:center}
+.nota .c{text-align:center;color:#555;font-size:.85rem}
+.nota hr{border:0;border-top:1px dashed #aaa;margin:12px 0}
+.nota .sum>div{font-size:.9rem}
+@media print{
+  body *{visibility:hidden}
+  #nota,#nota *{visibility:visible}
+  #nota{position:absolute;left:0;top:0;width:100%;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>Aplikasi ini membutuhkan JavaScript.</noscript>
+
+<script>
+/* =====================================================================
+   KONFIGURASI — ganti dengan URL Web App Apps Script kamu
+   (hasil Deploy > New deployment, berakhiran /exec)
+   ===================================================================== */
+const CONFIG = { API_URL: 'https://script.google.com/macros/s/AKfycbz1ZyYY4WPORdNwrSduPsBibGPAHxAVKPk_tC1CZKE0BLPZA49FHssuVF2BqYlr8B_UYw/exec' };
+
+/* ============================ UTIL ============================ */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const N = v => Number(v) || 0;
+const B = v => String(v).toUpperCase() === 'TRUE';
+const rp = n => 'Rp' + Math.round(N(n)).toLocaleString('id-ID');
+const kg = n => (Math.round(N(n) * 100) / 100).toLocaleString('id-ID') + ' kg';
+const tgl = s => { const m = String(s || '').match(/(\d{4})-(\d{2})-(\d{2})/); if (!m) return s ? esc(s) : '-';
+  return new Date(+m[1], +m[2]-1, +m[3]).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}); };
+const tglJam = s => tgl(s) + ((String(s).match(/(\d{2}:\d{2})/) || [])[1] ? ', ' + String(s).match(/(\d{2}:\d{2})/)[1] : '');
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }, del(k){ try { localStorage.removeItem(k); } catch(e){} } };
+const waLink = (p, t) => 'https://wa.me/' + String(p || '').replace(/\D/g,'') + '?text=' + encodeURIComponent(t || '');
+const normWa = v => { let d = String(v || '').replace(/\D/g,''); if (d.startsWith('0')) d = '62' + d.slice(1); else if (d.startsWith('8')) d = '62' + d; return d; };
+
+const ICONS = {
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.5a3.5 3.5 0 010 7M18 14.3c2.2.6 3.5 2.4 3.5 5.7"/>',
+  tag:'<path d="M3 12V4a1 1 0 011-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.5"/>',
+  truck:'<path d="M2 6h11v10H2zM13 9h4l4 4v3h-8z"/><circle cx="6.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+  wallet:'<path d="M3 7h16a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2zM3 7l12-3v3"/><circle cx="16" cy="13.5" r="1"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', check:'<path d="M5 12l5 5 9-10"/>',
+  print:'<path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/>', chat:'<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/>',
+  out:'<path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/>'
+};
+const ico = n => `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
+
+const statusCls = s => /Menunggu/.test(s) ? 'b-new' : /Siap|Pengantaran/.test(s) ? 'b-ready' : s === 'Selesai' ? 'b-done' : s === 'Dibatalkan' ? 'b-bad' : 'b-proc';
+const payCls = s => s === 'Lunas' ? 'b-ok' : s === 'DP' ? 'b-new' : 'b-bad';
+const stBadge = s => `<span class="badge ${statusCls(s)}">${esc(s)}</span>`;
+const pyBadge = s => `<span class="badge ${payCls(s)}">${esc(s)}</span>`;
+const STATUSES = ['Menunggu Konfirmasi','Menunggu Penjemputan','Diterima','Dicuci','Dikeringkan','Disetrika','Siap Diambil','Dalam Pengantaran','Selesai','Dibatalkan'];
+
+function toast(msg, err) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div'); t.className = 'toast' + (err ? ' err' : ''); t.setAttribute('role', err ? 'alert' : 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3800);
+}
+const skeleton = (n = 4) => Array.from({length: n}, () => '<div class="sk"></div>').join('');
+
+/* ============================ API ============================ */
+const S = { info: null, token: store.get('lt') || '', list: { status: '', q: '' }, rep: null };
+async function api(action, data) {
+  if (!/^https:\/\//.test(CONFIG.API_URL)) throw new Error('API_URL belum diisi. Buka index.html dan isi CONFIG.API_URL dengan URL Web App.');
+  let res;
+  try {
+    res = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, token: S.token, data: data || {} }) });
+  } catch (e) { throw new Error('Tidak bisa terhubung ke server. Periksa internet atau pengaturan deploy.'); }
+  let j; try { j = await res.json(); } catch (e) { throw new Error('Respons server tidak dikenali. Pastikan deploy diatur "Anyone".'); }
+  if (!j.ok) { if (j.code === 'AUTH') { S.token = ''; store.del('lt'); if (/admin/.test(location.hash)) location.hash = '#/admin'; } throw new Error(j.message); }
+  return j.data;
+}
+
+/* ============================ BIAYA (sama dengan server) ============================ */
+const feeFor = (t, kind, w) => (B(t[kind+'_gratis']) && w >= N(t[kind+'_min_kg']) && w > 0) ? 0 : N(t[kind+'_biaya']);
+function estimate(t, svc, w, terima, kembali) {
+  if (!svc) return null;
+  const layanan = Math.round(Math.max(w, N(svc.MinBerat)) * N(svc.HargaPerKg));
+  const pick = terima === 'Pickup' ? feeFor(t, 'pickup', w) : 0, del = kembali === 'Delivery' ? feeFor(t, 'delivery', w) : 0;
+  return { layanan, pick, del, total: layanan + pick + del };
+}
+const sumRows = (r, label = 'Total') => `<div class="sum">${r.map(x => `<div><span>${x[0]}</span><span>${x[1]}</span></div>`).join('')}</div>`;
+
+/* ============================ MODAL ============================ */
+function openModal(html, narrow) {
+  closeModal();
+  const ov = document.createElement('div'); ov.className = 'ov'; ov.id = 'ov';
+  ov.innerHTML = `<div class="card modal${narrow ? ' narrow' : ''}" role="dialog" aria-modal="true" tabindex="-1"><button class="btn sm x" data-act="close" aria-label="Tutup">${ico('x')}</button>${html}</div>`;
+  ov.addEventListener('mousedown', e => { if (e.target === ov) closeModal(); });
+  document.body.appendChild(ov); $('.modal', ov).focus(); return ov;
+}
+function closeModal() { const o = $('#ov'); if (o) o.remove(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ============================ PENGIKAT EVENT ============================ */
+const ACT = {}, FORMS = {};
+document.addEventListener('click', e => { const a = e.target.closest('[data-act]'); if (a && ACT[a.dataset.act]) { if (a.tagName === 'A' && a.dataset.act !== 'x') e.preventDefault(); ACT[a.dataset.act](a, e); } });
+document.addEventListener('submit', async e => {
+  const f = e.target.closest('form[data-form]'); if (!f) return; e.preventDefault();
+  const btn = f.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+  try { await FORMS[f.dataset.form](f); } catch (err) { toast(err.message, true); } finally { if (btn) btn.disabled = false; }
+});
+document.addEventListener('input', e => { const f = e.target.closest('form[data-live]'); if (f && LIVE[f.dataset.live]) LIVE[f.dataset.live](f); });
+const LIVE = {};
+const fobj = f => { const o = Object.fromEntries(new FormData(f)); f.querySelectorAll('input[type=checkbox]').forEach(c => { o[c.name] = c.checked ? 'TRUE' : 'FALSE'; }); return o; };
+const fld = (label, name, val = '', attrs = '', tag = 'input') => tag === 'textarea'
+  ? `<label class="f"><span>${label}</span><textarea class="in" name="${name}" ${attrs}>${esc(val)}</textarea></label>`
+  : `<label class="f"><span>${label}</span><input class="in" name="${name}" value="${esc(val)}" ${attrs}></label>`;
+const sel = (label, name, opts, val = '', attrs = '') => `<label class="f"><span>${label}</span><select class="in" name="${name}" ${attrs}>${opts.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${String(v) === String(val) ? 'selected' : ''}>${esc(l)}</option>`; }).join('')}</select></label>`;
+
+/* ============================ ROUTER ============================ */
+async function route() {
+  closeModal();
+  const [p, a, b] = location.hash.replace(/^#\/?/, '').split('/');
+  window.scrollTo(0, 0);
+  if (p === 'admin') return adminRoute(a || '');
+  const app = $('#app'); document.title = (S.info ? S.info.toko.nama_toko : 'Laundry');
+  if (!S.info) {
+    app.innerHTML = `<div class="wrap" style="padding-top:40px">${skeleton(3)}</div>`;
+    try { S.info = await api('publicInfo'); document.title = S.info.toko.nama_toko; }
+    catch (e) { app.innerHTML = `<div class="wrap" style="padding-top:40px"><div class="card err-box">${esc(e.message)}</div></div>`; return; }
+  }
+  const pages = { '': viewHome, pesan: viewPesan, status: () => viewStatus(a), harga: viewHome };
+  app.innerHTML = buyerShell((pages[p] || viewHome)(), p);
+  if (p === 'harga') $('#harga')?.scrollIntoView();
+  if (p === 'pesan') { const lf = $('form[data-live=order]'); if (lf) LIVE.order(lf); }
+  if (p === 'status' && a) { const f = $('form[data-form=track]'); if (f) f.noOrder.value = a; }
+}
+window.addEventListener('hashchange', route);
+
+function buyerShell(inner, p) {
+  const t = S.info.toko, cur = x => p === x ? 'aria-current="page"' : '';
+  return `<header class="top"><div class="wrap"><a class="brand" href="#/">${esc(t.nama_toko)}</a>
+    <nav class="nav" aria-label="Menu utama"><a href="#/" ${cur('')}>Beranda</a><a href="#/harga" ${cur('harga')}>Harga</a><a href="#/pesan" ${cur('pesan')}>Pesan</a><a href="#/status" ${cur('status')}>Cek status</a></nav></div></header>
+    <main class="wrap">${inner}</main>
+    <footer class="wrap"><small>${esc(t.nama_toko)} · ${esc(t.alamat)}</small><br><a href="#/admin"><small>Masuk pemilik</small></a></footer>`;
+}
+
+/* ============================ HALAMAN PELANGGAN ============================ */
+function jemputText(t) {
+  const part = (k, nm) => !B(t[k+'_aktif']) ? `${nm} tidak tersedia.` : B(t[k+'_gratis']) ? `${nm} gratis untuk cucian minimal ${N(t[k+'_min_kg'])} kg, di bawah itu ${rp(t[k+'_biaya'])}.` : `${nm} dikenai biaya ${rp(t[k+'_biaya'])}.`;
+  return [part('pickup', 'Jemput'), part('delivery', 'Antar')];
+}
+function viewHome() {
+  const t = S.info.toko, L = S.info.layanan, j = jemputText(t);
+  return `<section class="hero"><div><h1>${esc(t.nama_toko)}</h1><p class="lead">${esc(t.tagline)}</p>
+    <div class="row gap"><a class="btn primary" href="#/pesan">Pesan sekarang</a><a class="btn" href="#/status">Cek status pesanan</a></div>
+    <div class="chips"><span class="chip">${esc(t.jam_operasional)}</span>${B(t.pickup_aktif) ? '<span class="chip">Bisa dijemput</span>' : ''}${B(t.delivery_aktif) ? '<span class="chip">Bisa diantar</span>' : ''}</div></div>
+    <div class="drum" aria-hidden="true"><div class="drum-in">
+      <svg class="wave b" viewBox="0 0 400 100" preserveAspectRatio="none"><path d="M0 40Q50 10 100 40T200 40T300 40T400 40V100H0Z" fill="#5A4FE5"/></svg>
+      <svg class="wave" viewBox="0 0 400 100" preserveAspectRatio="none"><path d="M0 40Q50 70 100 40T200 40T300 40T400 40V100H0Z" fill="#5A4FE5"/></svg></div></div></section>
+    <section class="blk" id="harga"><h2>Layanan dan harga</h2>${L.length ? `<div class="grid cards">${L.map(s => `<div class="card svc"><h3>${esc(s.Nama)}</h3><small>${esc(s.Deskripsi)}</small>
+      <div class="price">${rp(s.HargaPerKg)}<small>/kg</small></div><small>Estimasi ${N(s.EstimasiHari)} hari${N(s.MinBerat) > 1 ? ' · min. ' + N(s.MinBerat) + ' kg' : ''}</small></div>`).join('')}</div>` : '<div class="card empty">Belum ada layanan aktif.</div>'}</section>
+    <section class="blk grid two"><div class="card"><h3>Jemput dan antar</h3><div class="stack" style="margin-top:12px"><p>${j[0]}</p><p>${j[1]}</p>
+      ${B(t.pickup_aktif) ? `<small>Area: ${esc(t.pickup_area)}</small>` : ''}</div></div>
+      <div class="card"><h3>Kenapa di sini</h3><ul class="ul" style="margin-top:12px">${String(t.keunggulan).split('|').filter(Boolean).map(x => `<li>${ico('check')}<span>${esc(x)}</span></li>`).join('')}</ul></div></section>
+    <section class="blk"><div class="card row between gap"><div><h3>Ada pertanyaan?</h3><small>${esc(t.alamat)}</small></div>
+      <a class="btn" href="${waLink(t.wa, 'Halo ' + t.nama_toko + ', saya mau tanya.')}" target="_blank" rel="noopener">${ico('chat')} Chat WhatsApp</a></div></section>`;
+}
+
+function viewPesan() {
+  const t = S.info.toko, L = S.info.layanan;
+  if (!L.length) return '<div class="card empty">Belum ada layanan aktif. Silakan hubungi toko.</div>';
+  const slots = String(t.pickup_jam).split(',').map(x => x.trim()).filter(Boolean);
+  const today = todayStr();
+  return `<h2 style="margin:10px 0 18px">Pesan laundry</h2>
+  <form data-form="order" data-live="order" class="stack" autocomplete="on">
+    <div class="card"><h3>1. Pilih layanan</h3><div class="opts" style="margin-top:14px">${L.map((s, i) => `<label class="opt"><input type="radio" name="serviceId" value="${esc(s.ID)}" ${i === 0 ? 'checked' : ''}><span><b>${esc(s.Nama)}</b><small>${rp(s.HargaPerKg)}/kg · ${N(s.EstimasiHari)} hari</small></span></label>`).join('')}</div></div>
+    <div class="card stack"><h3>2. Data kamu</h3><div class="fgrid">${fld('Nama', 'nama', '', 'required maxlength="80" autocomplete="name"')}${fld('Nomor WhatsApp', 'wa', '', 'required inputmode="tel" placeholder="0812xxxxxxxx" autocomplete="tel"')}</div>
+      ${fld('Perkiraan berat (kg)', 'beratEstimasi', '', 'type="number" step="0.5" min="0.5" max="100" required inputmode="decimal" placeholder="Contoh: 4"')}
+      <small>Berat final ditimbang toko. Tagihan akan menyesuaikan berat sebenarnya.</small></div>
+    <div class="card stack"><h3>3. Cara cucian sampai ke toko</h3>
+      <div class="opts"><label class="opt"><input type="radio" name="metodeTerima" value="Antar Sendiri" checked><span><b>Antar sendiri</b><small>Bawa ke toko</small></span></label>
+      ${B(t.pickup_aktif) ? `<label class="opt"><input type="radio" name="metodeTerima" value="Pickup"><span><b>Dijemput kurir</b><small>${B(t.pickup_gratis) ? 'Gratis min. ' + N(t.pickup_min_kg) + ' kg' : rp(t.pickup_biaya)}</small></span></label>` : ''}</div>
+      <div id="boxPickup" class="hide stack"><div class="fgrid">${fld('Tanggal jemput', 'tglPickup', '', `type="date" min="${today}" value="${today}"`)}${sel('Jam jemput', 'jamPickup', slots.length ? slots : ['Kapan saja'])}</div></div></div>
+    <div class="card stack"><h3>4. Cara cucian kembali ke kamu</h3>
+      <div class="opts"><label class="opt"><input type="radio" name="metodeKembali" value="Ambil Sendiri" checked><span><b>Ambil sendiri</b><small>Ambil di toko</small></span></label>
+      ${B(t.delivery_aktif) ? `<label class="opt"><input type="radio" name="metodeKembali" value="Delivery"><span><b>Diantar kurir</b><small>${B(t.delivery_gratis) ? 'Gratis min. ' + N(t.delivery_min_kg) + ' kg' : rp(t.delivery_biaya)}</small></span></label>` : ''}</div>
+      <div id="boxAlamat" class="hide stack">${fld('Alamat lengkap', 'alamat', '', 'maxlength="250" placeholder="Jalan, nomor rumah, patokan" autocomplete="street-address"', 'textarea')}</div></div>
+    <div class="card stack"><h3>5. Pembayaran dan catatan</h3>
+      ${sel('Metode pembayaran', 'metodeBayar', ['Cash', 'Transfer Bank', 'QRIS', 'Bayar saat cucian selesai'])}
+      ${fld('Catatan (opsional)', 'catatan', '', 'maxlength="300" placeholder="Misal: pisahkan baju putih"', 'textarea')}
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px"></div>
+    <div class="card"><h3>Estimasi biaya</h3><div id="est" style="margin-top:12px"></div></div>
+    <button class="btn primary" type="submit" style="width:100%">Kirim pesanan</button>
+  </form>`;
+}
+LIVE.order = f => {
+  const t = S.info.toko, d = fobj(f), svc = S.info.layanan.find(s => s.ID === d.serviceId);
+  $('#boxPickup').classList.toggle('hide', d.metodeTerima !== 'Pickup');
+  $('#boxAlamat').classList.toggle('hide', !(d.metodeTerima === 'Pickup' || d.metodeKembali === 'Delivery'));
+  $('#boxAlamat textarea').required = d.metodeTerima === 'Pickup' || d.metodeKembali === 'Delivery';
+  const w = N(d.beratEstimasi), e = estimate(t, svc, w, d.metodeTerima, d.metodeKembali);
+  $('#est').innerHTML = !e || !w ? '<small>Isi perkiraan berat untuk melihat estimasi.</small>' :
+    sumRows([[`${esc(svc.Nama)} (${kg(Math.max(w, N(svc.MinBerat)))} × ${rp(svc.HargaPerKg)})`, rp(e.layanan)],
+      ...(d.metodeTerima === 'Pickup' ? [['Jemput', e.pick ? rp(e.pick) : 'Gratis']] : []),
+      ...(d.metodeKembali === 'Delivery' ? [['Antar', e.del ? rp(e.del) : 'Gratis']] : [])]) + `<div class="sum"><div class="tot"><span>Perkiraan total</span><span>${rp(e.total)}</span></div></div>`;
+};
+FORMS.order = async f => {
+  const d = fobj(f); if (!d.alamat && (d.metodeTerima === 'Pickup' || d.metodeKembali === 'Delivery')) throw new Error('Alamat wajib diisi untuk jemput/antar');
+  d.jadwalPickup = d.metodeTerima === 'Pickup' ? `${d.tglPickup} (${d.jamPickup})` : '';
+  const r = await api('createOrder', d);
+  $('#app main').innerHTML = `<div class="card stack" style="text-align:center;margin-top:24px"><h2>Pesanan terkirim</h2>
+    <p>Nomor order kamu</p><div class="price" style="font-size:2rem">${esc(r.noOrder)}</div>
+    <p>Simpan nomor ini untuk cek status. Kamu juga akan butuh 4 digit terakhir nomor WhatsApp yang didaftarkan.</p>
+    <div class="row gap" style="justify-content:center"><a class="btn primary" href="#/status/${encodeURIComponent(r.noOrder)}">Cek status</a>
+    <a class="btn" target="_blank" rel="noopener" href="${waLink(S.info.toko.wa, 'Halo, saya sudah memesan laundry dengan nomor ' + r.noOrder + '.')}">${ico('chat')} Kabari toko</a></div></div>`;
+  window.scrollTo(0, 0);
+};
+
+function viewStatus() {
+  return `<h2 style="margin:10px 0 18px">Cek status pesanan</h2><div class="stack">
+    <form data-form="track" class="card stack"><div class="fgrid">${fld('Nomor order', 'noOrder', '', 'required placeholder="LD-261106-001" autocapitalize="characters"')}${fld('4 digit terakhir WhatsApp', 'wa4', '', 'required inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234"')}</div>
+    <button class="btn primary" type="submit">Cek pesanan</button></form><div id="trackRes"></div></div>`;
+}
+let TRACKED = null;
+FORMS.track = async f => {
+  const d = fobj(f); $('#trackRes').innerHTML = skeleton(2);
+  try { TRACKED = await api('trackOrder', d); } catch (e) { $('#trackRes').innerHTML = `<div class="card err-box">${esc(e.message)}</div>`; return; }
+  const o = TRACKED;
+  $('#trackRes').innerHTML = `<div class="card stack"><div class="row between gap"><div><small>Nomor order</small><h3>${esc(o.NoOrder)}</h3></div>${stBadge(o.Status)}</div>
+    ${sumRows([['Nama', esc(o.Nama)], ['Layanan', esc(o.Layanan)], ['Berat', N(o.BeratAktual) ? kg(o.BeratAktual) : kg(o.BeratEstimasi) + ' (estimasi)'], ['Perkiraan selesai', tgl(o.EstimasiSelesai)],
+      ['Total tagihan', rp(o.Total)], ['Sudah dibayar', rp(o.Dibayar)], ['Sisa', rp(o.Sisa)]])}
+    <div>${pyBadge(o.StatusBayar)}</div>
+    ${N(o.BeratAktual) ? '' : '<small>Total masih perkiraan sampai cucian ditimbang toko.</small>'}
+    <h3>Riwayat status</h3><ul class="tl">${o.log.slice().reverse().map(l => `<li><b>${esc(l.Status)}</b><br><small>${tglJam(l.Waktu)}${l.Catatan ? ' · ' + esc(l.Catatan) : ''}</small></li>`).join('')}</ul>
+    <button class="btn" data-act="notaTrack">${ico('print')} Lihat nota</button></div>`;
+};
+ACT.notaTrack = () => showNota(TRACKED);
+
+/* ============================ NOTA ============================ */
+function notaHtml(o, t) {
+  const w = N(o.BeratAktual) || N(o.BeratEstimasi), billed = Math.max(w, N(o.MinBerat)), lay = Math.round(billed * N(o.HargaPerKg));
+  return `<div class="nota" id="nota"><h3>${esc(t.nama_toko)}</h3><div class="c">${esc(t.alamat)}<br>WA ${esc(t.wa)}</div><hr>
+    ${sumRows([['No. order', esc(o.NoOrder)], ['Tanggal', tglJam(o.Tanggal)], ['Pelanggan', esc(o.Nama)], ['Perkiraan selesai', tgl(o.EstimasiSelesai)]])}<hr>
+    ${sumRows([[`${esc(o.Layanan)}<br><small>${kg(billed)} × ${rp(o.HargaPerKg)}${N(o.BeratAktual) ? '' : ' (estimasi)'}</small>`, rp(lay)],
+      ...(N(o.BiayaTambahan) ? [['Biaya tambahan', rp(o.BiayaTambahan)]] : []), ...(o.MetodeTerima === 'Pickup' ? [['Jemput', N(o.BiayaPickup) ? rp(o.BiayaPickup) : 'Gratis']] : []),
+      ...(o.MetodeKembali === 'Delivery' ? [['Antar', N(o.BiayaDelivery) ? rp(o.BiayaDelivery) : 'Gratis']] : []), ...(N(o.Diskon) ? [['Diskon', '-' + rp(o.Diskon)]] : [])])}<hr>
+    <div class="sum"><div class="tot"><span>Total</span><span>${rp(o.Total)}</span></div><div><span>Dibayar</span><span>${rp(o.Dibayar)}</span></div><div><span>Sisa</span><span>${rp(o.Sisa)}</span></div><div><span>Status bayar</span><span>${esc(o.StatusBayar)}</span></div></div>
+    <hr><div class="c">Terima kasih sudah mencuci di ${esc(t.nama_toko)}</div></div>`;
+}
+function showNota(o) {
+  const t = (S.info && S.info.toko) || S.settings;
+  const txt = `Nota ${t.nama_toko}\nNo. order: ${o.NoOrder}\nLayanan: ${o.Layanan}\nTotal: ${rp(o.Total)}\nDibayar: ${rp(o.Dibayar)}\nSisa: ${rp(o.Sisa)}\nStatus: ${o.Status}`;
+  openModal(`<h3 style="margin-bottom:16px">Nota digital</h3>${notaHtml(o, t)}<div class="row gap" style="margin-top:16px">
+    <button class="btn primary" data-act="print">${ico('print')} Cetak</button>
+    <a class="btn" target="_blank" rel="noopener" href="${waLink(o.WhatsApp || '', txt)}">${ico('chat')} Bagikan WhatsApp</a></div>`, true);
+}
+ACT.print = () => window.print();
+ACT.close = () => closeModal();
+
+/* ============================ ADMIN: SHELL & LOGIN ============================ */
+const NAV = [['', 'Dashboard', 'grid'], ['pesanan', 'Pesanan', 'list'], ['pelanggan', 'Pelanggan', 'users'], ['layanan', 'Layanan', 'tag'],
+  ['antar-jemput', 'Antar-jemput', 'truck'], ['kurir', 'Kurir', 'user'], ['keuangan', 'Keuangan', 'wallet'], ['pengaturan', 'Pengaturan', 'gear']];
+const main = html => { const m = $('#main'); if (m) m.innerHTML = html; };
+const ph = (title, extra = '') => `<div class="ph"><h2>${title}</h2><div class="row gap">${extra}</div></div>`;
+
+async function adminRoute(page) {
+  document.title = 'Dashboard pemilik';
+  if (!S.token) {
+    $('#app').innerHTML = `<div class="wrap" style="max-width:420px;padding-top:12vh"><form data-form="login" class="card stack"><h2>Masuk pemilik</h2>
+      ${fld('Password', 'password', '', 'type="password" required autocomplete="current-password"')}<button class="btn primary" type="submit">Masuk</button>
+      <a href="#/"><small>Kembali ke halaman pelanggan</small></a></form></div>`;
+    return;
+  }
+  if (!$('#main')) $('#app').innerHTML = `<div class="shell"><nav class="side card" style="border-radius:0 22px 22px 0" aria-label="Menu pemilik"><span class="brand">Dashboard</span>
+    ${NAV.map(n => `<a href="#/admin/${n[0]}" data-nav="${n[0]}">${ico(n[2])}<span>${n[1]}</span></a>`).join('')}
+    <a href="#/admin" data-act="logout">${ico('out')}<span>Keluar</span></a></nav><main class="mainc" id="main"></main></div>`;
+  document.querySelectorAll('[data-nav]').forEach(a => { if (a.dataset.nav === page) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  main(skeleton());
+  const pages = { '': pDash, pesanan: pOrders, pelanggan: pCust, layanan: pSvc, 'antar-jemput': pDelivery, kurir: pCourier, keuangan: pFinance, pengaturan: pSettings };
+  try { S.settings = S.settings || await api('getSettings'); await (pages[page] || pDash)(); }
+  catch (e) { if (e.message) main(`<div class="card err-box">${esc(e.message)}</div>`); }
+}
+FORMS.login = async f => { const r = await api('login', fobj(f)); S.token = r.token; store.set('lt', r.token); S.settings = null; location.hash = '#/admin'; adminRoute(''); };
+ACT.logout = () => { S.token = ''; S.settings = null; store.del('lt'); location.hash = '#/admin'; adminRoute(''); };
+
+/* ============================ ADMIN: DASHBOARD ============================ */
+const bars = (items, key, fmt) => { const mx = Math.max(1, ...items.map(i => i[key]));
+  return `<div class="chart" role="img" aria-label="Grafik 7 hari terakhir">${items.map(i => `<div><span>${fmt(i[key])}</span><i style="height:${Math.max(4, i[key] / mx * 80)}%"></i><span>${i.tanggal.slice(8)}/${i.tanggal.slice(5, 7)}</span></div>`).join('')}</div>`; };
+const orderRow = o => `<button class="orow" data-act="openOrder" data-no="${esc(o.NoOrder)}"><div><b>${esc(o.NoOrder)}</b><small>${esc(o.Nama)} · ${esc(o.Layanan)} · ${N(o.BeratAktual) ? kg(o.BeratAktual) : '~' + kg(o.BeratEstimasi)}</small></div>${stBadge(o.Status)}${pyBadge(o.StatusBayar)}<span class="amt">${rp(o.Total)}</span></button>`;
+async function pDash() {
+  const d = await api('dashboard');
+  const st = (l, v, c = '') => `<div class="card sm stat ${c}"><small>${l}</small><b>${v}</b></div>`;
+  main(`${ph('Dashboard', `<button class="btn primary" data-act="newOrder">${ico('plus')} Pesanan baru</button>`)}
+    <div class="stats">${st('Pesanan hari ini', d.pesananHariIni)}${st('Pesanan baru', d.baru)}${st('Diproses', d.diproses)}${st('Siap diambil', d.siapDiambil)}${st('Dalam pengantaran', d.pengantaran)}${st('Pelanggan', d.totalPelanggan)}
+    ${st('Omzet hari ini', rp(d.omzetHariIni), 'lg')}${st('Pendapatan bulan ini', rp(d.pendapatanBulanIni), 'lg')}${st('Belum lunas', rp(d.piutang), 'lg')}</div>
+    <div class="grid two" style="margin-top:20px"><div class="card"><h3>Pendapatan 7 hari</h3>${bars(d.grafik, 'pendapatan', v => v ? Math.round(v / 1000) + 'rb' : '0')}</div>
+      <div class="card"><h3>Jumlah pesanan 7 hari</h3>${bars(d.grafik, 'pesanan', v => v)}</div></div>
+    <div class="grid two" style="margin-top:20px"><div class="card"><h3 style="margin-bottom:14px">Perlu tindakan</h3>${d.perluTindakan.length ? d.perluTindakan.map(orderRow).join('') : '<div class="empty">Semua pesanan sudah ditangani.</div>'}</div>
+      <div class="card"><h3 style="margin-bottom:14px">Status pembayaran</h3>${sumRows([['Belum dibayar', d.bayar.belum], ['DP', d.bayar.dp], ['Lunas', d.bayar.lunas]])}</div></div>
+    <div class="card" style="margin-top:20px"><h3 style="margin-bottom:14px">Pesanan terbaru</h3>${d.terbaru.length ? d.terbaru.map(orderRow).join('') : '<div class="empty">Belum ada pesanan.</div>'}</div>`);
+}
+
+/* ============================ ADMIN: PESANAN ============================ */
+async function pOrders() {
+  const L = S.list;
+  main(`${ph('Pesanan', `<button class="btn primary" data-act="newOrder">${ico('plus')} Pesanan baru</button>`)}
+    <div class="stack"><input class="in" type="search" id="q" placeholder="Cari nomor order, nama, atau WhatsApp" value="${esc(L.q)}" aria-label="Cari pesanan">
+    <div class="scroll"><div class="chips">${['', ...STATUSES].map(s => `<button class="fchip" data-act="fstatus" data-s="${esc(s)}" aria-pressed="${L.status === s}">${s || 'Semua'}</button>`).join('')}</div></div>
+    <div id="olist">${skeleton(3)}</div></div>`);
+  let tm; $('#q').addEventListener('input', e => { clearTimeout(tm); tm = setTimeout(() => { L.q = e.target.value; loadOrders(); }, 350); });
+  loadOrders();
+}
+async function loadOrders() {
+  const el = $('#olist'); if (!el) return;
+  try { const r = await api('listOrders', S.list); el.innerHTML = r.length ? r.map(orderRow).join('') : '<div class="card empty">Tidak ada pesanan yang cocok.</div>'; }
+  catch (e) { el.innerHTML = `<div class="card err-box">${esc(e.message)}</div>`; }
+}
+ACT.fstatus = a => { S.list.status = a.dataset.s; document.querySelectorAll('.fchip').forEach(c => c.setAttribute('aria-pressed', c === a)); loadOrders(); };
+
+const NEXT = { 'Menunggu Konfirmasi': 'Menunggu Penjemputan', 'Menunggu Penjemputan': 'Diterima', 'Diterima': 'Dicuci', 'Dicuci': 'Dikeringkan', 'Dikeringkan': 'Disetrika', 'Disetrika': 'Siap Diambil', 'Siap Diambil': 'Selesai', 'Dalam Pengantaran': 'Selesai' };
+function waStatusText(o) {
+  const t = S.settings, no = o.NoOrder, m = {
+    'Menunggu Konfirmasi': `pesanan ${no} sudah kami terima dan sedang dikonfirmasi.`, 'Menunggu Penjemputan': `pesanan ${no} dikonfirmasi. Kurir akan segera menjemput cucian kamu.`,
+    'Diterima': `cucian pesanan ${no} sudah kami terima${N(o.BeratAktual) ? ' dengan berat ' + kg(o.BeratAktual) : ''}. Total tagihan ${rp(o.Total)}.`,
+    'Dicuci': `cucian ${no} sedang dicuci.`, 'Dikeringkan': `cucian ${no} sedang dikeringkan.`, 'Disetrika': `cucian ${no} sedang disetrika.`,
+    'Siap Diambil': `cucian ${no} sudah selesai dan siap diambil. Total ${rp(o.Total)}, sisa ${rp(o.Sisa)}.`, 'Dalam Pengantaran': `cucian ${no} sedang diantar ke alamat kamu. Sisa pembayaran ${rp(o.Sisa)}.`,
+    'Selesai': `pesanan ${no} sudah selesai. Terima kasih!`, 'Dibatalkan': `pesanan ${no} dibatalkan.` };
+  return `Halo ${o.Nama}, ${m[o.Status] || 'update pesanan ' + no + '.'} - ${t.nama_toko}`;
+}
+ACT.openOrder = async a => {
+  const no = a.dataset.no; openModal(skeleton(3));
+  try { const [r, cr] = await Promise.all([api('getOrder', { noOrder: no }), api('listCouriers')]); orderModal(r, cr.filter(c => B(c.Aktif))); }
+  catch (e) { closeModal(); toast(e.message, true); }
+};
+function orderModal(r, couriers) {
+  const o = r.order, locked = o.Status === 'Selesai' || o.Status === 'Dibatalkan', nx = NEXT[o.Status];
+  const cOpts = [['', '— belum ditugaskan —'], ...couriers.map(c => [c.Nama, c.Nama])];
+  openModal(`<div class="stack"><div class="row between gap" style="padding-right:44px"><div><small>${tglJam(o.Tanggal)} · ${esc(o.Sumber)}</small><h3>${esc(o.NoOrder)}</h3></div><div class="row gap">${stBadge(o.Status)}${pyBadge(o.StatusBayar)}</div></div>
+    <div class="inset">${sumRows([['Pelanggan', `${esc(o.Nama)} · ${esc(o.WhatsApp)}`], ['Alamat', esc(o.Alamat) || '-'], ['Layanan', `${esc(o.Layanan)} (${rp(o.HargaPerKg)}/kg)`],
+      ['Berat', `${kg(o.BeratEstimasi)} est. · ${N(o.BeratAktual) ? kg(o.BeratAktual) + ' aktual' : 'belum ditimbang'}`], ['Cucian masuk', o.MetodeTerima === 'Pickup' ? 'Dijemput ' + esc(o.JadwalPickup) : 'Diantar sendiri'],
+      ['Cucian kembali', o.MetodeKembali === 'Delivery' ? 'Diantar kurir' : 'Diambil sendiri'], ['Pembayaran', esc(o.MetodeBayar) || '-'], ['Catatan', esc(o.Catatan) || '-']])}</div>
+    <div class="inset">${sumRows([['Biaya tambahan', rp(o.BiayaTambahan)], ['Jemput', rp(o.BiayaPickup)], ['Antar', rp(o.BiayaDelivery)], ['Diskon', '-' + rp(o.Diskon)], ['Total', `<b>${rp(o.Total)}</b>`], ['Dibayar', rp(o.Dibayar)], ['Sisa', `<b>${rp(o.Sisa)}</b>`]])}</div>
+    <form data-form="statusSet" class="stack"><input type="hidden" name="noOrder" value="${esc(o.NoOrder)}"><h3>Status pesanan</h3>
+      <div class="fgrid">${sel('Ubah ke', 'status', STATUSES, nx || o.Status)}${fld('Catatan (opsional)', 'catatan', '', 'maxlength="200"')}</div>
+      <div class="row gap"><button class="btn primary" type="submit">Perbarui status</button></div></form>
+    <form data-form="orderEdit" class="stack"><input type="hidden" name="noOrder" value="${esc(o.NoOrder)}"><h3>Ubah detail</h3>${locked ? '<small>Pesanan ini terkunci. Ubah status dulu untuk mengedit.</small>' : ''}
+      <fieldset class="stack" style="border:0;padding:0;margin:0" ${locked ? 'disabled' : ''}><div class="fgrid">${fld('Berat aktual (kg)', 'beratAktual', N(o.BeratAktual) || '', 'type="number" step="0.1" min="0" max="500" inputmode="decimal"')}
+      ${fld('Biaya tambahan (Rp)', 'tambahan', N(o.BiayaTambahan), 'type="number" min="0" step="500"')}${fld('Diskon (Rp)', 'diskon', N(o.Diskon), 'type="number" min="0" step="500"')}
+      ${fld('Perkiraan selesai', 'estimasiSelesai', String(o.EstimasiSelesai).slice(0, 10), 'type="date"')}${sel('Kurir jemput', 'kurirPickup', cOpts, o.KurirPickup)}${sel('Kurir antar', 'kurirAntar', cOpts, o.KurirAntar)}</div>
+      ${fld('Alamat', 'alamat', o.Alamat)}${fld('Catatan', 'catatan', o.Catatan, 'maxlength="300"')}<button class="btn" type="submit">Simpan perubahan</button></fieldset></form>
+    <form data-form="pay" class="stack"><input type="hidden" name="noOrder" value="${esc(o.NoOrder)}"><h3>Pembayaran</h3>
+      ${r.payments.length ? `<div class="inset">${sumRows(r.payments.map(p => [`${tglJam(p.Waktu)} · ${esc(p.Metode)}`, rp(p.Jumlah)]))}</div>` : '<small>Belum ada pembayaran.</small>'}
+      <div class="fgrid">${fld('Jumlah (Rp)', 'jumlah', N(o.Sisa) || '', 'type="number" min="1" step="500" required inputmode="numeric"')}${sel('Metode', 'metode', ['Cash', 'Transfer Bank', 'QRIS'])}</div>
+      <button class="btn" type="submit" ${o.Status === 'Dibatalkan' ? 'disabled' : ''}>Catat pembayaran</button></form>
+    <div><h3 style="margin-bottom:12px">Riwayat status</h3><ul class="tl">${r.log.slice().reverse().map(l => `<li><b>${esc(l.Status)}</b><br><small>${tglJam(l.Waktu)}${l.Catatan ? ' · ' + esc(l.Catatan) : ''}</small></li>`).join('')}</ul></div>
+    <div class="row gap"><button class="btn" data-act="notaAdmin" data-no="${esc(o.NoOrder)}">${ico('print')} Nota</button>
+      <a class="btn" target="_blank" rel="noopener" href="${waLink(o.WhatsApp, waStatusText(o))}">${ico('chat')} Kabari pelanggan</a></div></div>`);
+  ORDER_CACHE[o.NoOrder] = o;
+}
+const ORDER_CACHE = {};
+ACT.notaAdmin = a => showNota(ORDER_CACHE[a.dataset.no]);
+const refreshOrder = async no => { const [r, cr] = await Promise.all([api('getOrder', { noOrder: no }), api('listCouriers')]); orderModal(r, cr.filter(c => B(c.Aktif))); refreshPage(); };
+const refreshPage = () => { if (/admin\/pesanan/.test(location.hash)) loadOrders(); else if (/admin\/?$/.test(location.hash)) pDash(); };
+FORMS.statusSet = async f => { const d = fobj(f); await api('setStatus', d); toast('Status diperbarui'); await refreshOrder(d.noOrder); };
+FORMS.orderEdit = async f => { const d = fobj(f); await api('updateOrder', d); toast('Perubahan disimpan'); await refreshOrder(d.noOrder); };
+FORMS.pay = async f => { const d = fobj(f); await api('addPayment', d); toast('Pembayaran dicatat'); await refreshOrder(d.noOrder); };
+
+ACT.newOrder = async () => {
+  openModal(skeleton(3));
+  try {
+    const [cs, sv] = await Promise.all([api('listCustomers'), api('listServices')]), act = sv.filter(s => B(s.Aktif)), t = S.settings;
+    window.__cs = cs;
+    openModal(`<form data-form="orderNew" class="stack"><h3 style="padding-right:44px">Pesanan baru</h3>
+      ${sel('Pelanggan', 'cid', [['', '+ Pelanggan baru'], ...cs.map(c => [c.ID, `${c.Nama} (${c.WhatsApp})`])], '', 'data-act="pickCust"')}
+      <div class="fgrid">${fld('Nama', 'nama', '', 'required maxlength="80"')}${fld('WhatsApp', 'wa', '', 'required inputmode="tel" placeholder="0812xxxxxxxx"')}</div>
+      <div class="fgrid">${sel('Layanan', 'serviceId', act.map(s => [s.ID, `${s.Nama} - ${rp(s.HargaPerKg)}/kg`]))}${fld('Berat aktual (kg)', 'beratAktual', '', 'type="number" step="0.1" min="0.1" max="500" required inputmode="decimal"')}</div>
+      <div class="fgrid">${sel('Cucian masuk', 'metodeTerima', [['Antar Sendiri', 'Diantar sendiri'], ...(B(t.pickup_aktif) ? [['Pickup', 'Dijemput kurir']] : [])])}${sel('Cucian kembali', 'metodeKembali', [['Ambil Sendiri', 'Diambil sendiri'], ...(B(t.delivery_aktif) ? [['Delivery', 'Diantar kurir']] : [])])}</div>
+      ${fld('Alamat (wajib jika jemput/antar)', 'alamat', '')}
+      <div class="fgrid">${fld('Biaya tambahan (Rp)', 'tambahan', '', 'type="number" min="0" step="500"')}${fld('Diskon (Rp)', 'diskon', '', 'type="number" min="0" step="500"')}${fld('Bayar awal (Rp)', 'dibayar', '', 'type="number" min="0" step="500"')}${sel('Metode bayar', 'metodeBayar', ['Cash', 'Transfer Bank', 'QRIS'])}</div>
+      ${fld('Catatan', 'catatan', '', 'maxlength="300"')}<button class="btn primary" type="submit">Simpan pesanan</button></form>`);
+  } catch (e) { closeModal(); toast(e.message, true); }
+};
+document.addEventListener('change', e => { if (e.target.dataset.act === 'pickCust') { const c = (window.__cs || []).find(x => x.ID === e.target.value), f = e.target.form;
+  f.nama.value = c ? c.Nama : ''; f.wa.value = c ? c.WhatsApp : ''; f.alamat.value = c ? c.Alamat : ''; } });
+FORMS.orderNew = async f => { const d = fobj(f); const o = await api('createOrderManual', d); toast('Pesanan ' + o.NoOrder + ' dibuat'); closeModal(); refreshPage(); };
+
+/* ============================ ADMIN: PELANGGAN ============================ */
+async function pCust() {
+  const cs = await api('listCustomers');
+  main(`${ph('Pelanggan', `<button class="btn primary" data-act="editCust">${ico('plus')} Tambah</button>`)}<div class="stack"><input class="in" type="search" id="cq" placeholder="Cari nama atau WhatsApp" aria-label="Cari pelanggan"><div id="clist"></div></div>`);
+  window.__cs = cs;
+  const draw = q => { q = (q || '').toLowerCase(); const l = cs.filter(c => (c.Nama + c.WhatsApp).toLowerCase().includes(q));
+    $('#clist').innerHTML = l.length ? l.map(c => `<div class="card sm row between gap" style="margin-bottom:12px"><div><b>${esc(c.Nama)}</b><br><small>${esc(c.WhatsApp)} · ${c.totalPesanan} pesanan · ${rp(c.totalTransaksi)}<br>Bergabung ${tgl(c.Bergabung)}${c.Alamat ? ' · ' + esc(c.Alamat) : ''}</small></div>
+      <div class="row gap"><button class="btn sm" data-act="editCust" data-id="${esc(c.ID)}">Ubah</button><button class="btn sm danger" data-act="delCust" data-id="${esc(c.ID)}">Hapus</button></div></div>`).join('') : '<div class="card empty">Belum ada pelanggan.</div>'; };
+  draw(); $('#cq').addEventListener('input', e => draw(e.target.value));
+}
+ACT.editCust = a => { const c = (window.__cs || []).find(x => x.ID === a.dataset.id) || {};
+  openModal(`<form data-form="cust" class="stack"><h3 style="padding-right:44px">${c.ID ? 'Ubah' : 'Tambah'} pelanggan</h3><input type="hidden" name="id" value="${esc(c.ID || '')}">
+    ${fld('Nama', 'nama', c.Nama, 'required maxlength="80"')}${fld('WhatsApp', 'wa', c.WhatsApp, 'required inputmode="tel"')}${fld('Alamat', 'alamat', c.Alamat)}${fld('Catatan', 'catatan', c.Catatan)}<button class="btn primary" type="submit">Simpan</button></form>`, true); };
+FORMS.cust = async f => { await api('saveCustomer', fobj(f)); closeModal(); toast('Pelanggan disimpan'); pCust(); };
+ACT.delCust = async a => { if (!confirm('Hapus pelanggan ini?')) return; try { await api('deleteCustomer', { id: a.dataset.id }); toast('Pelanggan dihapus'); pCust(); } catch (e) { toast(e.message, true); } };
+
+/* ============================ ADMIN: LAYANAN ============================ */
+async function pSvc() {
+  const sv = await api('listServices'); window.__sv = sv;
+  main(`${ph('Layanan dan harga', `<button class="btn primary" data-act="editSvc">${ico('plus')} Tambah</button>`)}${sv.length ? sv.map(s => `<div class="card sm row between gap" style="margin-bottom:12px"><div><b>${esc(s.Nama)}</b> ${B(s.Aktif) ? '' : '<span class="badge b-bad">Nonaktif</span>'}<br><small>${rp(s.HargaPerKg)}/kg · min. ${N(s.MinBerat)} kg · ${N(s.EstimasiHari)} hari<br>${esc(s.Deskripsi)}</small></div>
+    <div class="row gap"><button class="btn sm" data-act="editSvc" data-id="${esc(s.ID)}">Ubah</button><button class="btn sm danger" data-act="delSvc" data-id="${esc(s.ID)}">Hapus</button></div></div>`).join('') : '<div class="card empty">Belum ada layanan.</div>'}
+    <small>Mengubah harga tidak memengaruhi pesanan lama karena tiap pesanan menyimpan harga saat dibuat.</small>`);
+}
+ACT.editSvc = a => { const s = (window.__sv || []).find(x => x.ID === a.dataset.id) || { Aktif: true, MinBerat: 1, EstimasiHari: 2 };
+  openModal(`<form data-form="svc" class="stack"><h3 style="padding-right:44px">${s.ID ? 'Ubah' : 'Tambah'} layanan</h3><input type="hidden" name="id" value="${esc(s.ID || '')}">
+    ${fld('Nama layanan', 'nama', s.Nama, 'required maxlength="60"')}${fld('Deskripsi', 'deskripsi', s.Deskripsi, 'maxlength="200"')}
+    <div class="fgrid">${fld('Harga per kg (Rp)', 'harga', s.HargaPerKg, 'type="number" min="0" step="500" required')}${fld('Minimum berat (kg)', 'minBerat', s.MinBerat, 'type="number" min="0" step="0.5"')}${fld('Estimasi (hari)', 'estimasiHari', s.EstimasiHari, 'type="number" min="0"')}</div>
+    <label class="sw"><input type="checkbox" name="aktif" ${B(s.Aktif) ? 'checked' : ''}> Layanan aktif (tampil di halaman pelanggan)</label><button class="btn primary" type="submit">Simpan</button></form>`, true); };
+FORMS.svc = async f => { const d = fobj(f); d.aktif = d.aktif === 'TRUE'; await api('saveService', d); S.info = null; closeModal(); toast('Layanan disimpan'); pSvc(); };
+ACT.delSvc = async a => { if (!confirm('Hapus layanan ini?')) return; try { await api('deleteService', { id: a.dataset.id }); S.info = null; toast('Layanan dihapus'); pSvc(); } catch (e) { toast(e.message, true); } };
+
+/* ============================ ADMIN: PENGATURAN & ANTAR-JEMPUT ============================ */
+const setForm = (name, html) => `<form data-form="${name}" class="card stack">${html}<button class="btn primary" type="submit">Simpan pengaturan</button></form>`;
+async function pDelivery() {
+  const t = S.settings = await api('getSettings');
+  const blk = (k, nm) => `<h3>${nm}</h3><label class="sw"><input type="checkbox" name="${k}_aktif" ${B(t[k+'_aktif']) ? 'checked' : ''}> Layanan ${nm.toLowerCase()} aktif</label>
+    <label class="sw"><input type="checkbox" name="${k}_gratis" ${B(t[k+'_gratis']) ? 'checked' : ''}> Gratis jika berat mencukupi</label>
+    <div class="fgrid">${fld('Minimum berat gratis (kg)', k + '_min_kg', t[k+'_min_kg'], 'type="number" min="0" step="0.5"')}${fld('Biaya di bawah minimum (Rp)', k + '_biaya', t[k+'_biaya'], 'type="number" min="0" step="500"')}</div>${fld('Area layanan', k + '_area', t[k+'_area'])}`;
+  main(`${ph('Antar-jemput')}${setForm('settings', blk('pickup', 'Jemput') + fld('Slot jam jemput (pisahkan koma)', 'pickup_jam', t.pickup_jam) + '<hr style="border:0;border-top:2px solid var(--lo);width:100%">' + blk('delivery', 'Antar'))}
+    <small>Gratis dihitung dari berat aktual setelah cucian ditimbang. Jemput dan antar punya minimum berat yang terpisah.</small>`);
+}
+async function pSettings() {
+  const t = S.settings = await api('getSettings');
+  main(`${ph('Pengaturan toko')}<div class="stack">${setForm('settings', [['nama_toko', 'Nama laundry'], ['tagline', 'Tagline'], ['alamat', 'Alamat'], ['wa', 'WhatsApp toko (format 62812...)'], ['jam_operasional', 'Jam operasional'], ['keunggulan', 'Keunggulan (pisahkan dengan tanda |)'], ['rekening', 'Info rekening transfer']].map(x => fld(x[1], x[0], t[x[0]], 'maxlength="250"')).join(''))}
+    <form data-form="pw" class="card stack"><h3>Ganti password</h3><div class="fgrid">${fld('Password lama', 'lama', '', 'type="password" required autocomplete="current-password"')}${fld('Password baru (min. 8 karakter)', 'baru', '', 'type="password" required minlength="8" autocomplete="new-password"')}</div><button class="btn" type="submit">Ganti password</button></form></div>`);
+}
+FORMS.settings = async f => { const d = fobj(f); if (d.wa) d.wa = normWa(d.wa); S.settings = await api('saveSettings', d); S.info = null; toast('Pengaturan disimpan'); };
+FORMS.pw = async f => { await api('changePassword', fobj(f)); f.reset(); toast('Password diganti'); };
+
+/* ============================ ADMIN: KURIR ============================ */
+async function pCourier() {
+  const cs = await api('listCouriers'); window.__co = cs;
+  main(`${ph('Kurir', `<button class="btn primary" data-act="editCo">${ico('plus')} Tambah</button>`)}${cs.length ? cs.map(c => `<div class="card sm row between gap" style="margin-bottom:12px"><div><b>${esc(c.Nama)}</b> ${B(c.Aktif) ? '' : '<span class="badge b-bad">Nonaktif</span>'}<br><small>${esc(c.WhatsApp) || '-'}</small></div>
+    <div class="row gap"><button class="btn sm" data-act="editCo" data-id="${esc(c.ID)}">Ubah</button><button class="btn sm danger" data-act="delCo" data-id="${esc(c.ID)}">Hapus</button></div></div>`).join('') : '<div class="card empty">Belum ada kurir. Tambahkan agar bisa ditugaskan ke pesanan.</div>'}`);
+}
+ACT.editCo = a => { const c = (window.__co || []).find(x => x.ID === a.dataset.id) || { Aktif: true };
+  openModal(`<form data-form="courier" class="stack"><h3 style="padding-right:44px">${c.ID ? 'Ubah' : 'Tambah'} kurir</h3><input type="hidden" name="id" value="${esc(c.ID || '')}">${fld('Nama', 'nama', c.Nama, 'required maxlength="60"')}${fld('WhatsApp', 'wa', c.WhatsApp, 'inputmode="tel"')}
+    <label class="sw"><input type="checkbox" name="aktif" ${B(c.Aktif) ? 'checked' : ''}> Aktif</label><button class="btn primary" type="submit">Simpan</button></form>`, true); };
+FORMS.courier = async f => { const d = fobj(f); d.aktif = d.aktif === 'TRUE'; await api('saveCourier', d); closeModal(); toast('Kurir disimpan'); pCourier(); };
+ACT.delCo = async a => { if (!confirm('Hapus kurir ini?')) return; try { await api('deleteCourier', { id: a.dataset.id }); toast('Kurir dihapus'); pCourier(); } catch (e) { toast(e.message, true); } };
+
+/* ============================ ADMIN: KEUANGAN ============================ */
+async function pFinance() {
+  const m = todayStr().slice(0, 8); S.rep = S.rep || { from: m + '01', to: todayStr() };
+  main(`${ph('Keuangan & laporan')}<div class="stack"><form data-form="range" class="card row gap" style="align-items:flex-end">${fld('Dari', 'from', S.rep.from, 'type="date" required')}${fld('Sampai', 'to', S.rep.to, 'type="date" required')}<button class="btn" type="submit">Tampilkan</button></form><div id="rep">${skeleton(3)}</div></div>`);
+  loadReport();
+}
+FORMS.range = async f => { const d = fobj(f); S.rep = { from: d.from, to: d.to }; loadReport(); };
+async function loadReport() {
+  const el = $('#rep'); if (!el) return;
+  try {
+    const r = await api('report', S.rep), st = (l, v) => `<div class="card sm stat lg"><small>${l}</small><b>${v}</b></div>`;
+    el.innerHTML = `<div class="stats">${st('Pendapatan', rp(r.pendapatan))}${st('Pengeluaran', rp(r.pengeluaran))}${st('Laba sederhana', rp(r.laba))}${st('Transaksi', r.jumlahTransaksi)}</div>
+    <small>Pendapatan dihitung dari pembayaran yang masuk. Pesanan dibatalkan tidak dihitung.</small>
+    <form data-form="expense" class="card stack" style="margin-top:18px"><h3>Catat pengeluaran</h3><div class="fgrid">${fld('Tanggal', 'tanggal', todayStr(), 'type="date" required')}${sel('Kategori', 'kategori', ['Deterjen', 'Pewangi', 'Plastik laundry', 'Listrik', 'Air', 'Gaji karyawan', 'Transportasi', 'Lainnya'])}${fld('Jumlah (Rp)', 'jumlah', '', 'type="number" min="1" step="500" required inputmode="numeric"')}${fld('Keterangan', 'keterangan', '', 'maxlength="200"')}</div><button class="btn" type="submit">Simpan pengeluaran</button></form>
+    <div class="card" style="margin-top:18px"><h3 style="margin-bottom:10px">Pengeluaran</h3>${r.pengeluaranList.length ? `<div class="scroll"><table><tr><th>Tanggal</th><th>Kategori</th><th>Keterangan</th><th>Jumlah</th><th></th></tr>${r.pengeluaranList.map(e => `<tr><td>${tgl(e.Tanggal)}</td><td>${esc(e.Kategori)}</td><td>${esc(e.Keterangan)}</td><td>${rp(e.Jumlah)}</td><td><button class="btn sm danger" data-act="delExp" data-id="${esc(e.ID)}">Hapus</button></td></tr>`).join('')}</table></div>` : '<div class="empty">Tidak ada pengeluaran di rentang ini.</div>'}</div>
+    <div class="card" style="margin-top:18px"><h3 style="margin-bottom:10px">Transaksi</h3>${r.transaksi.length ? `<div class="scroll"><table><tr><th>No. order</th><th>Tanggal</th><th>Pelanggan</th><th>Total</th><th>Bayar</th></tr>${r.transaksi.map(o => `<tr><td>${esc(o.NoOrder)}</td><td>${tgl(o.Tanggal)}</td><td>${esc(o.Nama)}</td><td>${rp(o.Total)}</td><td>${esc(o.StatusBayar)}</td></tr>`).join('')}</table></div>` : '<div class="empty">Tidak ada transaksi di rentang ini.</div>'}</div>
+    <div class="card" style="margin-top:18px"><h3 style="margin-bottom:10px">Belum lunas (semua waktu)</h3>${r.belumLunas.length ? `<div class="scroll"><table><tr><th>No. order</th><th>Pelanggan</th><th>WhatsApp</th><th>Sisa</th></tr>${r.belumLunas.map(o => `<tr><td>${esc(o.NoOrder)}</td><td>${esc(o.Nama)}</td><td>${esc(o.WhatsApp)}</td><td>${rp(o.Sisa)}</td></tr>`).join('')}</table></div>` : '<div class="empty">Tidak ada piutang.</div>'}</div>`;
+  } catch (e) { el.innerHTML = `<div class="card err-box">${esc(e.message)}</div>`; }
+}
+FORMS.expense = async f => { await api('saveExpense', fobj(f)); toast('Pengeluaran dicatat'); loadReport(); };
+ACT.delExp = async a => { if (!confirm('Hapus pengeluaran ini?')) return; try { await api('deleteExpense', { id: a.dataset.id }); toast('Dihapus'); loadReport(); } catch (e) { toast(e.message, true); } };
+
+/* ============================ MULAI ============================ */
+route();
+</script>
+</body>
+</html>
